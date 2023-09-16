@@ -26,7 +26,7 @@ export class AuthService {
     const jwt = this.jwtService.sign(payload);
 
     // Set the JWT as a cookie
-    response.cookie('Authentication', jwt, {
+    response.cookie('access_token', jwt, {
       httpOnly: true,
       maxAge: 600000, // 10 minutes in milliseconds
     });

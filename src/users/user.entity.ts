@@ -1,5 +1,12 @@
 import * as bcrypt from 'bcrypt';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Url } from 'src/urls/urls.entity';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  OneToMany,
+} from 'typeorm';
 
 @Entity()
 export class User {
@@ -11,6 +18,12 @@ export class User {
 
   @Column()
   hashed_password: string;
+
+  @OneToMany(() => Url, (url) => url.user)
+  urls: Url[];
+
+  @CreateDateColumn()
+  created_at: Date;
 
   async validatePassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.hashed_password);

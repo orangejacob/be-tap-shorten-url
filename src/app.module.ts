@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt/jwt.strategy';
+import { UrlsModule } from './urls/urls.module';
 
 const ENV = process.env.NEST_ENV;
 
@@ -25,11 +26,13 @@ const ENV = process.env.NEST_ENV;
         database: configService.get<string>('DB_DATABASE'),
         entities: [User],
         synchronize: true,
+        autoLoadEntities: true,
       }),
       inject: [ConfigService],
     }),
     AuthModule,
     UsersModule,
+    UrlsModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
