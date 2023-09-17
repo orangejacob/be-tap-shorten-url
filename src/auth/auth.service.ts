@@ -15,7 +15,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async login(dto: SignInDto, response: Response) {
+  async login(dto: SignInDto) {
     const user = await this.usersService.getUser(dto.username);
     if (!user) {
       throw new Error('Invalid username or password');

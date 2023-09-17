@@ -1,3 +1,4 @@
+import { Exclude, instanceToPlain } from 'class-transformer';
 import { User } from 'src/users/user.entity';
 import {
   Entity,
@@ -20,6 +21,7 @@ export class Url {
   @Column()
   original: string;
 
+  @Exclude({ toPlainOnly: true })
   @ManyToOne(() => User, (user) => user.urls)
   user: User;
 
@@ -28,4 +30,8 @@ export class Url {
 
   @CreateDateColumn()
   created_at: Date;
+
+  toJSON() {
+    return instanceToPlain(this);
+  }
 }
