@@ -30,22 +30,20 @@ export class AuthService {
       user.username,
     );
 
-    this.setCookieTokens(accessToken, refreshToken, response);
+    await this.usersService.updateRefreshToken(user.username, refreshToken);
 
     return {
       message: 'Logged in successfully',
       access_token: accessToken,
-      refresh_token: refreshToken,
     };
   }
 
-  async logout(res: Response) {
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token');
+  async logout(username: string) {
+    await this.usersService.updateRefreshToken(username, null);
     return;
   }
 
-  async register(dto: RegisterDto, response: Response) {
+  async register(dto: RegisterDto) {
     const [username, password] = [dto.username, dto.password];
     const userExist = await this.usersService.getUser(username);
 
@@ -61,12 +59,11 @@ export class AuthService {
       user.username,
     );
 
-    this.setCookieTokens(accessToken, refreshToken, response);
+    await this.usersService.updateRefreshToken(username, refreshToken);
 
     return {
       message: 'Logged in successfully',
       access_token: accessToken,
-      refresh_token: refreshToken,
     };
   }
 
@@ -90,20 +87,11 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async setCookieTokens(
-    accessToken: string,
-    refreshToken: string,
-    res: Response,
-  ) {
-    // Set the JWT as a cookie
-    res.cookie('access_token', accessToken, {
-      httpOnly: true,
-      maxAge: 900000, // 15 min
-    });
-
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      maxAge: 3600000 * 24 * 3, // 3 days in milliseconds
-    });
+  async getRefreshToken(username: string): Promise<string | null> {
+    const user = await this.usersService.getUser(username);
+    if (user?.refreshToken) {
+      return user.refreshToken;
+    }
+    return null;
   }
 }

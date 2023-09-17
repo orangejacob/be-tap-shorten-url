@@ -27,6 +27,9 @@ export class User {
   @CreateDateColumn()
   created_at: Date;
 
+  @Column({ nullable: true })
+  refreshToken: string;
+
   toJSON() {
     return instanceToPlain(this);
   }

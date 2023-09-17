@@ -14,7 +14,6 @@ export class RefreshTokenMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     const token = req.headers['authorization']?.split(' ')[1];
-
     try {
       this.jwtService.verify(token, {
         secret: this.configService.get<string>('JWT_SECRET'),
@@ -25,7 +24,12 @@ export class RefreshTokenMiddleware implements NestMiddleware {
         return next();
       }
 
-      const refreshToken = req?.cookies?.refresh_token;
+      // Extract expired payload data
+      const expiredData: any = this.jwtService.decode(token);
+      const refreshToken = await this.authService.getRefreshToken(
+        expiredData?.username,
+      );
+
       if (!refreshToken) {
         return next();
       }
@@ -43,8 +47,6 @@ export class RefreshTokenMiddleware implements NestMiddleware {
 
         // Attach the new token to the request.
         req.headers['authorization'] = `Bearer ${accessToken}`;
-        res.cookie('access_token', accessToken);
-
         return next();
       } catch (error) {
         // If there's an error during refresh (e.g., refresh token is also expired), proceed without modification.
