@@ -10,19 +10,11 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
-  }
-
   getUser(username: string): Promise<User | null> {
     return this.usersRepository.findOne({ where: { username } });
   }
 
-  checkUserNameExists(username: string): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { username } });
-  }
-
-  createUser(username: string, hashed_password: string) {
+  createUser(username: string, hashed_password: string): Promise<User | null> {
     return this.usersRepository.save({ username, hashed_password });
   }
 }

@@ -5,10 +5,16 @@ import { UsersModule } from 'src/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Url } from './urls.entity';
 import { User } from 'src/users/user.entity';
-import { UsersService } from 'src/users/users.service';
+import { AuthModule } from 'src/auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Url, User]), UsersModule],
+  imports: [
+    TypeOrmModule.forFeature([Url, User]),
+    UsersModule,
+    AuthModule,
+    JwtModule,
+  ],
   providers: [UrlsService],
   controllers: [UrlsController],
 })

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -6,8 +6,11 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { User } from './users/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtStrategy } from './jwt/jwt.strategy';
+import { AccessTokenStrategy } from './jwt/access.strategy';
 import { UrlsModule } from './urls/urls.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
+import { RefreshTokenMiddleware } from './jwt/refresh-token.middleware';
 
 const ENV = process.env.NEST_ENV;
 
@@ -33,8 +36,13 @@ const ENV = process.env.NEST_ENV;
     AuthModule,
     UsersModule,
     UrlsModule,
+    JwtModule,
   ],
   controllers: [AppController],
-  providers: [AppService, JwtStrategy],
+  providers: [AppService, AccessTokenStrategy],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RefreshTokenMiddleware).forRoutes('*'); // '*' applies to all routes
+  }
+}

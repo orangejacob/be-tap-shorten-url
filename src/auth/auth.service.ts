@@ -4,45 +4,106 @@ import { JwtService } from '@nestjs/jwt';
 import { saltRounds } from './constants';
 import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
+import { RegisterDto, SignInDto } from './auth.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
-  async login(username: string, password: string, response: Response) {
-    const user = await this.usersService.getUser(username);
+  async login(dto: SignInDto, response: Response) {
+    const user = await this.usersService.getUser(dto.username);
     if (!user) {
       throw new Error('Invalid username or password');
     }
 
-    if (!(await user.validatePassword(password))) {
-      throw new Error('Invalid username or password');
+    if (!(await user.validatePassword(dto.password))) {
+      throw new Error('Password is incorect');
     }
 
-    const payload = { username: user.username, sub: user.id };
-    const jwt = this.jwtService.sign(payload);
+    const { accessToken, refreshToken } = await this.generateTokens(
+      user.id,
+      user.username,
+    );
 
-    // Set the JWT as a cookie
-    response.cookie('access_token', jwt, {
-      httpOnly: true,
-      maxAge: 600000, // 10 minutes in milliseconds
-    });
+    this.setCookieTokens(accessToken, refreshToken, response);
 
-    return { message: 'Logged in successfully' };
+    return {
+      message: 'Logged in successfully',
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
   }
 
-  async register(username: string, plaintextPassword: string) {
-    const usernameExist = await this.usersService.checkUserNameExists(username);
+  async logout(res: Response) {
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+    return;
+  }
 
-    if (usernameExist !== null) {
+  async register(dto: RegisterDto, response: Response) {
+    const [username, password] = [dto.username, dto.password];
+    const userExist = await this.usersService.getUser(username);
+
+    if (userExist !== null) {
       throw new ConflictException('Username already exists, please try again.');
     }
 
-    const hashedPassword = await bcrypt.hash(plaintextPassword, saltRounds);
-    this.usersService.createUser(username, hashedPassword);
-    return { message: 'User registered successfully' };
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const user = await this.usersService.createUser(username, hashedPassword);
+
+    const { accessToken, refreshToken } = await this.generateTokens(
+      user.id,
+      user.username,
+    );
+
+    this.setCookieTokens(accessToken, refreshToken, response);
+
+    return {
+      message: 'Logged in successfully',
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
+  }
+
+  async generateTokens(userId: number, username: string) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.sign(
+        { sub: userId, username },
+        {
+          secret: this.configService.get<string>('JWT_SECRET'),
+          expiresIn: this.configService.get<string>('JWT_ACCESS_TOKEN_EXPIRY'),
+        },
+      ),
+      this.jwtService.sign(
+        { sub: userId, username },
+        {
+          secret: this.configService.get<string>('JWT_SECRET'),
+          expiresIn: this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRY'),
+        },
+      ),
+    ]);
+    return { accessToken, refreshToken };
+  }
+
+  async setCookieTokens(
+    accessToken: string,
+    refreshToken: string,
+    res: Response,
+  ) {
+    // Set the JWT as a cookie
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      maxAge: 900000, // 15 min
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      maxAge: 3600000 * 24 * 3, // 3 days in milliseconds
+    });
   }
 }
