@@ -7,6 +7,7 @@ import {
   Request,
   Patch,
   Param,
+  Delete,
 } from '@nestjs/common';
 
 import { UrlsService } from './urls.service';
@@ -37,5 +38,11 @@ export class UrlsController {
   @Get('/:shortcode')
   redirect(@Param('shortcode') shortcode) {
     return this.urlService.getUrlByShortcode(shortcode);
+  }
+
+  @Delete('/:shortcode')
+  deleteUrl(@Request() req, @Param('shortcode') shortcode) {
+    console.log('### REACH HERE');
+    return this.urlService.deleteUrl(req?.user?.username, shortcode);
   }
 }

@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { Url } from './urls.entity';
 import { UsersService } from 'src/users/users.service';
 import * as base62 from 'base62';
-import { Response } from 'express';
 
 @Injectable()
 export class UrlsService {
@@ -45,7 +44,7 @@ export class UrlsService {
     return url;
   }
 
-  async createUrl(username: string, original_url: string): Promise<Url | null> {
+  async createUrl(username: string, originalUrl: string): Promise<Url | null> {
     const user = await this.userService.getUser(username);
 
     if (!user) {
@@ -57,7 +56,7 @@ export class UrlsService {
     return this.urlRepository.save({
       user,
       shortcode,
-      original: original_url,
+      original: originalUrl,
     });
   }
 
