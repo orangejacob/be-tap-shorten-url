@@ -7,13 +7,11 @@ import {
   Request,
   Patch,
   Param,
-  Res,
 } from '@nestjs/common';
 
 import { UrlsService } from './urls.service';
 import { JwtAuthGuard } from 'src/jwt/jwt-auth.guard';
 import { CreateUrlDto, SaveUrlDto } from './urls.dto';
-import { Response } from 'express';
 
 @Controller('urls')
 export class UrlsController {
@@ -37,7 +35,7 @@ export class UrlsController {
   }
 
   @Get('/:shortcode')
-  redirect(@Param('shortcode') shortcode, @Res() res: Response) {
-    return this.urlService.getUrlByShortcode(shortcode, res);
+  redirect(@Param('shortcode') shortcode) {
+    return this.urlService.getUrlByShortcode(shortcode);
   }
 }

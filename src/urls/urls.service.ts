@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'crypto';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Url } from './urls.entity';
@@ -92,13 +92,14 @@ export class UrlsService {
     return this.urlRepository.remove(url);
   }
 
-  async getUrlByShortcode(shortcode: string, res: Response): Promise<string> {
+  async getUrlByShortcode(shortcode: string): Promise<string> {
     const url = await this.urlRepository.findOne({ where: { shortcode } });
 
     if (!url) {
-      throw new Error('Url is invalid');
+      throw new NotFoundException('Url is invalid');
     }
-    res.redirect(url.original);
+    url.views += 1;
+    this.urlRepository.save(url);
     return url.original;
   }
 }

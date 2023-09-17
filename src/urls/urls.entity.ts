@@ -28,6 +28,9 @@ export class Url {
   @Column({ type: 'boolean', default: false })
   saved: boolean;
 
+  @Column({ default: 0 })
+  views: number;
+
   @CreateDateColumn()
   created_at: Date;
 
