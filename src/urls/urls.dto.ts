@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsUrl, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsUrl,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateUrlDto {
   @IsUrl()
