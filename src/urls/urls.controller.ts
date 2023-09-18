@@ -35,6 +35,7 @@ export class UrlsController {
     return this.urlService.getUrlByShortcode(shortcode);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('/:shortcode')
   deleteUrl(@Request() req, @Param('shortcode') shortcode) {
     return this.urlService.deleteUrl(req?.user?.username, shortcode);
