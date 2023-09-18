@@ -1,73 +1,60 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Backend - Shortening URL
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+### Introduction
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This backend server handles the shortening and storing of URLs, user authentication, and user management. It is built to work in a Dockerized environment and utilizes PostgreSQL as its database and TypeORM for ORM.
 
-## Description
+### Running the Server
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+#### Prerequisites:
 
-## Installation
+- Docker and Docker Compose installed on your machine.
 
-```bash
-$ npm install
-```
+#### Steps:
 
-## Running the app
+1. Open a terminal and navigate to the project's root directory.
+2. Run the following command:
 
-```bash
-# development
-$ npm run start
+   ```bash
+   docker-compose up
+   ```
 
-# watch mode
-$ npm run start:dev
+3. The server will start and be accessible on port `8000`.
 
-# production mode
-$ npm run start:prod
-```
+### Modules
 
-## Test
+#### 1. URL:
 
-```bash
-# unit tests
-$ npm run test
+This module handles the shortening and storing of URLs.
 
-# e2e tests
-$ npm run test:e2e
+#### 2. Auth:
 
-# test coverage
-$ npm run test:cov
-```
+Used for authenticating users.
 
-## Support
+#### 3. User:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Responsible for user management functionalities.
 
-## Stay in touch
+### Database
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+The server uses PostgreSQL as its primary database, and interactions with the database are facilitated by TypeORM. The following tables are present:
 
-## License
+- `User`: For storing user-related data.
+- `URL`: For storing the original URLs and their shortened codes.
 
-Nest is [MIT licensed](LICENSE).
+### Shortening Logic
+
+1. A unique code for shortening is generated using a combination of MD5 and Base62 encoding.
+2. An MD5 hash is created from the combination of a UUID and the sender's username. This is to ensure the prevention of any collusion.
+3. The resultant hash is then transformed into a shortcode using Base62 encoding, making it alphanumeric. A substring of this result is taken for the shortcode.
+4. If a shortcode already exists in the database, the shortening function is rerun until a unique code is generated.
+5. Incoming GET request on `/urls/:shortcode` will return the original URL.
+
+### Limitations
+
+Given more time, I will:
+
+- Write unit and e2e test cases.
+- Use Redis to store shortcode.
+
+---
