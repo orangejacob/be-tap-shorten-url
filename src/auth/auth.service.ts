@@ -7,7 +7,6 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { saltRounds } from './constants';
 import * as bcrypt from 'bcrypt';
-import { Response } from 'express';
 import { RegisterDto, SignInDto } from './auth.dto';
 import { ConfigService } from '@nestjs/config';
 

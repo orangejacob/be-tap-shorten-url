@@ -8,7 +8,6 @@ import { User } from './users/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AccessTokenStrategy } from './jwt/access.strategy';
 import { UrlsModule } from './urls/urls.module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { RefreshTokenMiddleware } from './jwt/refresh-token.middleware';
 
