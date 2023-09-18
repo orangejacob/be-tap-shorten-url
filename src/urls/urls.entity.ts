@@ -25,9 +25,6 @@ export class Url {
   @ManyToOne(() => User, (user) => user.urls)
   user: User;
 
-  @Column({ type: 'boolean', default: false })
-  saved: boolean;
-
   @Column({ default: 0 })
   views: number;
 

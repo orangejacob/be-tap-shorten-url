@@ -25,25 +25,6 @@ export class UrlsService {
     });
   }
 
-  async saveUrl(username: string, shortcode: string): Promise<Url | null> {
-    const url = await this.urlRepository.findOne({
-      where: {
-        shortcode: shortcode,
-        user: {
-          username: username,
-        },
-      },
-    });
-
-    if (!url) {
-      throw new Error('Url does not exists.');
-    }
-
-    url.saved = true;
-    this.urlRepository.save(url);
-    return url;
-  }
-
   async createUrl(username: string, originalUrl: string): Promise<Url | null> {
     const user = await this.userService.getUser(username);
 

@@ -12,7 +12,7 @@ import {
 
 import { UrlsService } from './urls.service';
 import { JwtAuthGuard } from 'src/jwt/jwt-auth.guard';
-import { CreateUrlDto, SaveUrlDto } from './urls.dto';
+import { CreateUrlDto } from './urls.dto';
 
 @Controller('urls')
 export class UrlsController {
@@ -22,11 +22,6 @@ export class UrlsController {
   @Get()
   getUrls(@Request() req) {
     return this.urlService.getUrls(req?.user?.username);
-  }
-  @UseGuards(JwtAuthGuard)
-  @Patch('save')
-  saveUrl(@Request() req, @Body() saveUrlDto: SaveUrlDto) {
-    return this.urlService.saveUrl(req?.user?.username, saveUrlDto.shortcode);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -42,7 +37,6 @@ export class UrlsController {
 
   @Delete('/:shortcode')
   deleteUrl(@Request() req, @Param('shortcode') shortcode) {
-    console.log('### REACH HERE');
     return this.urlService.deleteUrl(req?.user?.username, shortcode);
   }
 }
